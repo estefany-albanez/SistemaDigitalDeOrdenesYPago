@@ -7,7 +7,8 @@ const routes = [
       { path: 'agregar', component: () => import('pages/agregarPlatillo.vue') },
       { path: 'contacto', component: () => import('pages/ContactPage.vue') },
       { path: 'promociones', component: () => import('pages/PromotionsPage.vue') },
-      { path: 'detalles', component: () => import('pages/ProductPage.vue') },
+      { path: 'detalles', component: () => import('src/pages/ProductsPage.vue') },
+      { path: 'estado-orden', component: () => import('src/pages/EstadoOrden.vue') },
     ],
   },
   {
