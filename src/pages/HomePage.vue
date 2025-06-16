@@ -21,33 +21,46 @@
       </div>
 
       <div class="col-xs-12 col-sm-9">
-        <div class="text-body1 q-pa-md text-right q-mb-md">100 Resultados...</div>
+        <div class="text-body1 q-pa-md text-right q-mb-md">{{ displayedPlatillos.length }} Resultados...</div>
         <div class="row q-col-gutter-md">
-          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-for="item in filteredMenuItems" :key="item.id">
-            <q-card class="my-product-card bg-grey-1 fit column no-wrap">
-              <q-img :src="item.image" :alt="item.name" class="col-auto" />
 
-              <q-card-section>
-                <div class="text-h6">{{ item.name }}</div>
-                <div class="text-subtitle2 text-grey-8">{{ item.description }}</div>
-                <div class="row items-center q-mt-sm">
-                  <div class="col-auto text-h6 text-red-8">{{ item.price }}</div>
-                  <q-space />
-                  <q-btn color="red-8" label="Ordenar" rounded dense class="q-px-md" />
-                </div>
+          <div class="row q-ml-sm q-mr-sm">
+            <q-card class="my-card text-center col-6 col-sm-3 q-pa-sm q-mb-md" v-for="(item, key) in displayedPlatillos"
+              :key="key">
+              <img v-if="item.urlImagen" :src="item.urlImagen" class="q-px-xl"
+                :style="$q.platform.is.mobile ? 'height:140px' : 'height: 250px'">
+              <q-skeleton v-else
+                :style="$q.platform.is.mobile ? 'height:140px; width: 100%;' : 'height: 250px; width: 100%;'"
+                type="QAvatar" animation="fade" />
+              <q-card-section class="bg-deep-orange-1">
+                <div class="text-h6 text-center text-negative">$ {{ item.Precio }}</div>
+                {{ item.nombrePlatillo }}
               </q-card-section>
+              <q-separator />
+              <q-card-actions vertical align="center" class="bg-lime-2">
+                <q-btn :to="'/platillo/' + item.id" color="orange-8" class="shadow-10">Ver Detalles</q-btn>
+              </q-card-actions>
             </q-card>
           </div>
+
         </div>
       </div>
     </div>
+
   </q-page>
 </template>
-<script setup>
-import { ref, computed } from 'vue'
 
-const search = ref('')
+<script setup>
+import { ref, watch } from 'vue' // Importa watch
+import { useCollection } from 'vuefire'
+import { collection } from 'firebase/firestore'
+import { db, storage } from "boot/firebase"; // Asegúrate de que "boot/firebase" sea la ruta correcta
+import { ref as refStorage, listAll, getDownloadURL } from 'firebase/storage'
+
 const selectedCategory = ref('Todo') // Default selected category
+
+const platillos = useCollection(collection(db, 'platillos'))
+const displayedPlatillos = ref([]) // Nueva ref para los platillos con URLs de imagen
 
 const categories = ref([
   { name: 'Todo', count: 15 },
@@ -58,109 +71,55 @@ const categories = ref([
   { name: 'Bebidas', count: 15 },
 ])
 
-const menuItems = ref([
-  {
-    id: 1,
-    name: 'Cheesy melt Burger',
-    description: 'Deliciosa hamburguesa con queso derretido.',
-    price: '$28.99',
-    image: 'https://cdn.quasar.dev/img/parallax2.jpg', // Placeholder image
-    category: 'Almuerzo',
-  },
-  {
-    id: 2,
-    name: 'Hut Cheese Grande',
-    description: 'Pizza grande con extra queso.',
-    price: '$15.99',
-    image: 'https://cdn.quasar.dev/img/parallax1.jpg', // Placeholder image
-    category: 'Cena',
-  },
-  {
-    id: 3,
-    name: 'Combo 06 Alitas',
-    description: '6 alitas de pollo con tu salsa favorita.',
-    price: '$23.99',
-    image: 'https://cdn.quasar.dev/img/mountains.jpg', // Placeholder image
-    category: 'Bocadillos',
-  },
-  {
-    id: 4,
-    name: 'Cheesy melt Burger',
-    description: 'Deliciosa hamburguesa con queso derretido.',
-    price: '$28.99',
-    image: 'https://cdn.quasar.dev/img/parallax2.jpg', // Placeholder image
-    category: 'Almuerzo',
-  },
-  {
-    id: 5,
-    name: 'Hut Cheese Grande',
-    description: 'Pizza grande con extra queso.',
-    price: '$15.99',
-    image: 'https://cdn.quasar.dev/img/parallax1.jpg', // Placeholder image
-    category: 'Cena',
-  },
-  {
-    id: 6,
-    name: 'Combo 06 Alitas',
-    description: '6 alitas de pollo con tu salsa favorita.',
-    price: '$23.99',
-    image: 'https://cdn.quasar.dev/img/mountains.jpg', // Placeholder image
-    category: 'Bocadillos',
-  },
-  {
-    id: 7,
-    name: 'Cheesy melt Burger',
-    description: 'Deliciosa hamburguesa con queso derretido.',
-    price: '$28.99',
-    image: 'https://cdn.quasar.dev/img/parallax2.jpg', // Placeholder image
-    category: 'Almuerzo',
-  },
-  {
-    id: 8,
-    name: 'Hut Cheese Grande',
-    description: 'Pizza grande con extra queso.',
-    price: '$15.99',
-    image: 'https://cdn.quasar.dev/img/parallax1.jpg', // Placeholder image
-    category: 'Cena',
-  },
-  {
-    id: 9,
-    name: 'Combo 06 Alitas',
-    description: '6 alitas de pollo con tu salsa favorita.',
-    price: '$23.99',
-    image: 'https://cdn.quasar.dev/img/mountains.jpg', // Placeholder image
-    category: 'Bocadillos',
-  },
-  {
-    id: 10,
-    name: 'Breakfast Burrito',
-    description: 'Un delicioso burrito para empezar el día.',
-    price: '$8.50',
-    image: 'https://cdn.quasar.dev/img/quasar-logo-inner.svg', // Another placeholder
-    category: 'Desayuno',
-  },
-])
-
-const filteredMenuItems = computed(() => {
-  let items = menuItems.value
-
-  if (selectedCategory.value !== 'Todo') {
-    items = items.filter((item) => item.category === selectedCategory.value)
-  }
-
-  if (search.value) {
-    const searchTerm = search.value.toLowerCase()
-    items = items.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchTerm) ||
-        item.description.toLowerCase().includes(searchTerm),
-    )
-  }
-
-  return items
-})
-
 const selectCategory = (categoryName) => {
   selectedCategory.value = categoryName
+  // Aquí podrías implementar el filtrado si lo deseas
+  // Por ahora, displayedPlatillos se actualiza cuando platillos cambian
 }
+
+// Observa los cambios en platillos (de useCollection)
+watch(platillos, async (newPlatillos) => {
+  if (newPlatillos && newPlatillos.length > 0) {
+    // Cuando los platillos de Firestore estén disponibles, carga sus imágenes
+    displayedPlatillos.value = await cargarImagenes(newPlatillos);
+  } else {
+    displayedPlatillos.value = []; // Si no hay platillos, vacía la lista
+  }
+}, { immediate: true }); // `immediate: true` para que se ejecute la primera vez al montar el componente
+
+// Función para cargar las URLs de las imágenes
+async function cargarImagenes(platillosData) {
+  const platillosWithImages = [];
+  for (const arti of platillosData) {
+    try {
+      const listRef = refStorage(storage, arti.id);
+      const res = await listAll(listRef);
+
+      let urlImagen = '';
+      if (res.items.length > 0) {
+        urlImagen = await getDownloadURL(refStorage(storage, res.items[0].fullPath));
+      }
+
+      platillosWithImages.push({ ...arti, urlImagen: urlImagen }); // Crea una nueva copia del objeto
+    } catch (error) {
+      console.error(`Error al cargar imagen para ${arti.id}:`, error);
+      platillosWithImages.push({ ...arti, urlImagen: '' }); // Agrega el platillo sin imagen si hay un error
+    }
+  }
+  return platillosWithImages;
+}
+
+// onMounted ya no necesita cargarImagenes directamente porque `watch` lo manejará
+// onMounted(() => {
+//   // Ya no es necesario aquí, el `watch` lo maneja
+// });
 </script>
+
+<style scoped>
+.my-card {
+  width: 100%;
+  max-width: 250px;
+  /* Ajusta según tus necesidades */
+  margin: 0 auto;
+}
+</style>

@@ -2,7 +2,8 @@
 import { initializeApp } from "firebase/app";
 import {getFirestore} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-
+import { VueFire } from 'vuefire'
+import {boot} from "quasar/wrappers"
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,4 +21,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+export default boot(({app})=>{
+    app.use(VueFire, {
+        // imported above but could also just be created here
+        app,
+        modules: [
+          // we will see other modules later on
+        ],
+      })
+});
 export{db, storage};
