@@ -25,7 +25,8 @@
         <div class="row q-col-gutter-md">
 
           <div class="row q-mr-sm">
-            <q-card class="text-center col-6 col-sm-3 q-pa-sm q-mb-md" v-for="(item, key) in platillosConImg" :key="key">
+            <q-card class="text-center col-6 col-sm-3 q-pa-sm q-mb-md" v-for="(item, key) in platillosConImg"
+              :key="key">
               <img v-if="item.urlImagen" :src="item.urlImagen" class="q-px-sm"
                 :style="$q.platform.is.mobile ? 'height:140px' : 'height: 250px'">
               <q-skeleton v-else
@@ -39,7 +40,8 @@
               </q-card-section>
               <q-separator />
               <q-card-actions vertical align="center" class="bg-lime-2">
-                <q-btn :to="'/platillo/' + item.id" color="red-10" class="shadow-10">Ver Detalles</q-btn>
+                <q-btn @click.stop="goToDetail(item.__id || item.id)" color="red-10" class="shadow-10">Ver
+                  Detalles</q-btn>
               </q-card-actions>
             </q-card>
           </div>
@@ -57,11 +59,13 @@ import { useCollection } from 'vuefire'
 import { collection } from 'firebase/firestore'
 import { db, storage } from "boot/firebase"; // Asegúrate de que "boot/firebase" sea la ruta correcta
 import { ref as refStorage, listAll, getDownloadURL } from 'firebase/storage'
+import { useRouter } from 'vue-router';
 
 //const selectedCategory = ref('Todo') // Default selected category
 
 const platillos = useCollection(collection(db, 'platillos'))
 const platillosConImg = ref([]) // Nueva ref para los platillos con URLs de imagen
+const router = useRouter();
 
 const categories = ref([
   { name: 'Todo', count: 15 },
@@ -76,20 +80,22 @@ const categories = ref([
 
 // Observa los cambios en platillos (de useCollection)
 watch(platillos, async (newPlatillos) => {
+  console.log('Datos de Firestore:', newPlatillos);
   if (newPlatillos && newPlatillos.length > 0) {
-    // Cuando los platillos de Firestore estén disponibles, carga sus imágenes
     platillosConImg.value = await cargarImagenes(newPlatillos);
+    console.log('Platillos con imágenes:', platillosConImg.value);
   } else {
-    platillosConImg.value = []; // Si no hay platillos, vacía la lista
+    platillosConImg.value = [];
   }
-}, { immediate: true }); // `immediate: true` para que se ejecute la primera vez al montar el componente
+}, { immediate: true });
+
 
 // Función para cargar las URLs de las imágenes
 async function cargarImagenes(platillosData) {
   const platillosConImagenes = [];
   for (const arti of platillosData) {
     try {
-      const listRef = refStorage(storage, arti.id);
+      const listRef = refStorage(storage, arti.__id || arti.id);
       const res = await listAll(listRef);
 
       let urlImagen = '';
@@ -99,11 +105,16 @@ async function cargarImagenes(platillosData) {
 
       platillosConImagenes.push({ ...arti, urlImagen: urlImagen }); // Crea una nueva copia del objeto
     } catch (error) {
-      console.error(`Error al cargar imagen para ${arti.id}:`, error);
+      console.error(`Error al cargar imagen para ${arti.__id || arti.id}:`, error);
       platillosConImagenes.push({ ...arti, urlImagen: '' }); // Agrega el platillo sin imagen si hay un error
     }
   }
   return platillosConImagenes;
+}
+
+function goToDetail(id) {
+  console.log('Navegando al detalle con id:', id);
+  router.push(`/platillo/${id}`)
 }
 
 // onMounted ya no necesita cargarImagenes directamente porque `watch` lo manejará

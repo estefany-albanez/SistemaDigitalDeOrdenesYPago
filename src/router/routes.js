@@ -9,6 +9,7 @@ const routes = [
       { path: 'promociones', component: () => import('pages/PromotionsPage.vue') },
       { path: 'detalles', component: () => import('src/pages/ProductsPage.vue') },
       { path: 'estado-orden', component: () => import('src/pages/EstadoOrden.vue') },
+      { path: 'platillo/:id', component: () => import('pages/PlatilloDetailPage.vue') },
     ],
   },
   {
