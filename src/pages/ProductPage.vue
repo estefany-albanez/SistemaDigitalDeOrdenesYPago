@@ -27,8 +27,7 @@ import { useQuasar } from 'quasar';
 const cartStore = useCartStore();
 const $q = useQuasar();
 const router = useRouter(); // Inicializar useRouter
-  // Productos de ejemplo (mantén estos datos, son los mismos que en ProductDetailPage por
-  simplicidad)
+// Productos de ejemplo (mantén estos datos, son los mismos que en ProductDetailPage por simplicidad)
 const products = ref([
   {
     id: 1,
