@@ -184,6 +184,7 @@ function goToDetail(id) {
 }
 
 const mesaConsumo = inject('mesaConsumo', null);
+const horaLlegada = inject('horaLlegada', null);
 
 function ordenarProducto(item) {
   if (mesaConsumo) {
@@ -197,6 +198,11 @@ function ordenarProducto(item) {
         cantidad: 1,
         precio: Number(item.Precio)
       });
+      // Fijar la hora de llegada solo si es el primer platillo
+      if (horaLlegada && !horaLlegada.value) {
+        const now = new Date();
+        horaLlegada.value = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
     }
   }
   $q.notify({

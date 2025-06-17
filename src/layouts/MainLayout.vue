@@ -37,6 +37,8 @@ provide('globalSearch', search);
 
 // Estado global para la orden/mesa
 const mesaConsumo = ref([]); // [{ nombre, cantidad, precio }]
+const horaLlegada = ref(null);
 provide('mesaConsumo', mesaConsumo);
+provide('horaLlegada', horaLlegada);
 </script>
 <style lang="sass"></style>

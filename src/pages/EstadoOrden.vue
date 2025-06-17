@@ -79,6 +79,7 @@ import { useQuasar } from 'quasar';
 
 const $q = useQuasar();
 const mesaConsumo = inject('mesaConsumo', ref([]));
+const horaLlegada = inject('horaLlegada', ref(null));
 
 const mesaStatus = computed(() => {
   const consumo = mesaConsumo.value.length > 0 ? mesaConsumo.value : [
@@ -90,7 +91,7 @@ const mesaStatus = computed(() => {
   return {
     numero: 12,
     comensales: 4,
-    horaLlegada: '13:15',
+    horaLlegada: horaLlegada.value || '',
     estado: 'Atendida',
     consumo,
     total
