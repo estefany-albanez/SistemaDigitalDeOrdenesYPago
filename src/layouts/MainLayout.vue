@@ -18,7 +18,7 @@
         <q-btn flat dense label="Promociones" class=" text-caption q-mx-md text-weight-medium" to="/promotions" />
         <q-btn flat dense label="Dashboard" class=" text-caption q-mx-md  text-weight-medium" to="/dashboard" />
         <q-btn flat dense label="Pagos" class=" text-caption q-mx-md text-weight-medium" to="/payments" />
-        <q-btn flat dense label="Contactanos" class=" text-caption q-mx-md text-weight-medium" to="/feedback" />
+        <q-btn flat dense label="Contactanos" class=" text-caption q-mx-md text-weight-medium" to="/contacto" />
       </q-toolbar>
     </q-header>
 
