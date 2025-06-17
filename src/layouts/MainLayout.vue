@@ -29,6 +29,10 @@
 </template>
 
 <script setup>
+import { ref, provide } from 'vue';
 
+// Estado global para la búsqueda
+const search = ref("");
+provide('globalSearch', search);
 </script>
 <style lang="sass"></style>
