@@ -34,5 +34,9 @@ import { ref, provide } from 'vue';
 // Estado global para la búsqueda
 const search = ref("");
 provide('globalSearch', search);
+
+// Estado global para la orden/mesa
+const mesaConsumo = ref([]); // [{ nombre, cantidad, precio }]
+provide('mesaConsumo', mesaConsumo);
 </script>
 <style lang="sass"></style>

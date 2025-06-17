@@ -1,5 +1,11 @@
 <template>
   <q-page class="q-pa-md bg-grey-2 page-margin-top">
+    <!-- DEBUG: Mostrar el contenido actual de la orden global -->
+    <div class="q-mb-md bg-grey-3 q-pa-sm rounded-borders text-caption text-blue-10">
+      <b>DEBUG mesaConsumo:</b>
+      <pre>{{ JSON.stringify(mesaConsumo?.value, null, 2) }}</pre>
+    </div>
+
     <div class="row q-col-gutter-md">
       <div class="col-xs-12 col-sm-2">
         <q-card flat bordered class="q-pa-md">
@@ -44,7 +50,8 @@
                 </span>
                 <q-btn style="border-radius: 20px;" color="red-10" class="shadow-1 btn-ordenar" size="sm"
                   @click="ordenarProducto(item)">Ordenar</q-btn>
-                <q-btn @click.stop="goToDetail(item.__id || item.id)" color="red-10" class="shadow-10 btn-ordenar" size="sm">Ver Detalles</q-btn>
+                <q-btn @click.stop="goToDetail(item.__id || item.id)" color="red-10" class="shadow-10 btn-ordenar"
+                  size="sm">Ver Detalles</q-btn>
               </div>
             </q-card-section>
             <q-separator />
@@ -176,7 +183,22 @@ function goToDetail(id) {
   router.push(`/platillo/${id}`)
 }
 
+const mesaConsumo = inject('mesaConsumo', null);
+
 function ordenarProducto(item) {
+  if (mesaConsumo) {
+    // Buscar si ya existe el platillo en la orden
+    const existente = mesaConsumo.value.find(p => p.nombre === item.nombrePlatillo);
+    if (existente) {
+      existente.cantidad += 1;
+    } else {
+      mesaConsumo.value.push({
+        nombre: item.nombrePlatillo,
+        cantidad: 1,
+        precio: Number(item.Precio)
+      });
+    }
+  }
   $q.notify({
     type: 'positive',
     message: `Platillo "${item.nombrePlatillo}" agregado a la orden.`

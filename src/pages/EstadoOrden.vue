@@ -1,81 +1,71 @@
 <template>
-  <q-page class="q-pa-md order-status-page bg-grey-1">
+  <q-page class="q-pa-xl order-status-page bg-grey-1">
     <div class="row justify-center">
-      <div class="col-xs-12 col-md-8 col-lg-6">
-        <q-card class="q-pa-md shadow-2">
-          <div class="text-h4 text-center q-mb-lg text-primary text-bold">Estado de tu Orden</div>
+      <div class="col-xs-12 col-md-10 col-lg-8">
+        <q-card class="q-pa-xl shadow-4">
+          <div class="text-h3 text-center q-mb-xl text-primary text-bold">Estado de tu Orden</div>
 
-          <q-input v-model="orderIdInput" label="Ingresa tu ID de Orden" outlined dense class="q-mb-md"
-            @keyup.enter="fetchOrderStatus">
-            <template v-slot:append>
-              <q-btn flat icon="search" color="primary" @click="fetchOrderStatus" />
-            </template>
-          </q-input>
+          <q-list bordered separator class="q-mb-xl">
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="table_restaurant" color="primary" size="md" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Mesa</q-item-label>
+                <q-item-label class="text-h5 text-bold">#{{ mesaStatus.numero }}</q-item-label>
+              </q-item-section>
+            </q-item>
 
-          <q-separator class="q-my-md" />
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="group" color="primary" size="md" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Comensales</q-item-label>
+                <q-item-label class="text-h6">{{ mesaStatus.comensales }}</q-item-label>
+              </q-item-section>
+            </q-item>
 
-          <div v-if="loading" class="text-center q-py-lg">
-            <q-spinner-dots color="primary" size="3em" />
-            <div class="q-mt-sm text-grey-7">Cargando estado de la orden...</div>
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="event" color="primary" size="md" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Hora de llegada</q-item-label>
+                <q-item-label class="text-h6">{{ mesaStatus.horaLlegada }}</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="info" color="primary" size="md" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Estado</q-item-label>
+                <q-item-label class="text-h6 text-bold text-primary">{{ mesaStatus.estado }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <div class="text-h5 q-mb-md">Consumo actual:</div>
+          <q-table :rows="mesaStatus.consumo" :columns="columns" row-key="nombre" flat dense
+            class="q-mb-xl bg-white rounded-borders shadow-1" hide-bottom :pagination="{ rowsPerPage: 10 }" />
+
+          <div class="text-h4 text-right text-green-8 q-mt-lg q-mb-xl">
+            Total: $ {{ mesaStatus.total.toFixed(2) }}
           </div>
 
-          <div v-else-if="orderStatus">
-            <div class="text-h5 q-mb-md">Orden #{{ orderStatus.id }}</div>
-
-            <q-list bordered separator class="q-mb-lg">
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="person" color="grey-7" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label caption>Cliente</q-item-label>
-                  <q-item-label>{{ orderStatus.customerName }}</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="event" color="grey-7" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label caption>Fecha y Hora</q-item-label>
-                  <q-item-label>{{ new Date(orderStatus.dateTime).toLocaleString() }}</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="payments" color="grey-7" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label caption>Total</q-item-label>
-                  <q-item-label class="text-bold text-green-8">$ {{ orderStatus.total.toFixed(2) }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-
-            <div class="text-h6 q-mb-sm">Progreso de la Orden:</div>
-            <q-stepper v-model="currentStep" vertical color="primary" animated flat class="rounded-borders">
-              <q-step v-for="step in orderSteps" :key="step.name" :name="step.name" :title="step.title"
-                :icon="step.icon" :done="currentStep > step.name" :active="currentStep === step.name">
-                {{ step.description }}
-              </q-step>
-            </q-stepper>
-
-            <div class="q-mt-lg text-center">
-              <q-btn label="Volver a la Tienda" color="secondary" flat @click="router.push('/')" />
+          <div class="q-mt-xl">
+            <div class="row q-col-gutter-md justify-center">
+              <div class="col-12 col-md-6">
+                <q-btn label="Solicitar Cuenta" color="primary" size="sm" icon="receipt_long"
+                  class="full-width btn-accion estilizado" @click="limpiarOrden" />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-btn label="Llamar Mesero" color="secondary" size="sm" icon="support_agent"
+                  class="full-width btn-accion estilizado" />
+              </div>
             </div>
-
-          </div>
-
-          <div v-else-if="orderIdSearched && !orderStatus" class="text-center q-py-lg">
-            <q-icon name="error_outline" size="xl" color="negative" />
-            <div class="text-h5 q-mt-md text-grey-8">Orden no encontrada</div>
-            <p class="text-body1 q-mt-sm text-grey-7">Por favor, verifica el ID de la orden e inténtalo de nuevo.</p>
-          </div>
-          <div v-else class="text-center q-py-lg text-grey-6">
-            <q-icon name="info_outline" size="xl" />
-            <div class="text-h6 q-mt-md">Ingresa un ID de orden para ver su estado.</div>
           </div>
         </q-card>
       </div>
@@ -84,119 +74,89 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, inject } from 'vue';
 import { useQuasar } from 'quasar';
 
-const router = useRouter();
 const $q = useQuasar();
+const mesaConsumo = inject('mesaConsumo', ref([]));
 
-const orderIdInput = ref('');
-const orderStatus = ref(null);
-const loading = ref(false);
-const orderIdSearched = ref(false); // Para saber si ya se intentó buscar una orden
-
-// Datos de órdenes de ejemplo
-const sampleOrders = [
-  {
-    id: 'ORD12345',
-    customerName: 'Juan Pérez',
-    dateTime: '2025-06-15T10:30:00',
-    total: 35.50,
-    currentStepName: 'preparing', // Paso actual de la orden
-    items: [
-      { name: 'Pizza Pepperoni', quantity: 1, price: 15.99 },
-      { name: 'Refresco Grande', quantity: 2, price: 2.50 }
-    ]
-  },
-  {
-    id: 'ORD67890',
-    customerName: 'María García',
-    dateTime: '2025-06-16T14:00:00',
-    total: 22.00,
-    currentStepName: 'delivered',
-    items: [
-      { name: 'Hamburguesa Deluxe', quantity: 1, price: 10.50 },
-      { name: 'Ensalada César', quantity: 1, price: 8.75 }
-    ]
-  },
-  {
-    id: 'ORD54321',
-    customerName: 'Carlos López',
-    dateTime: '2025-06-16T09:15:00',
-    total: 12.00,
-    currentStepName: 'on_the_way',
-    items: [
-      { name: 'Brownie de Chocolate', quantity: 3, price: 4.00 }
-    ]
-  }
-];
-
-// Definición de los pasos de la orden
-const orderSteps = [
-  { name: 'placed', title: 'Pedido Realizado', icon: 'check_circle', description: 'Tu pedido ha sido recibido y está siendo procesado.' },
-  { name: 'preparing', title: 'En Preparación', icon: 'restaurant', description: 'Estamos preparando tus deliciosos platillos.' },
-  { name: 'on_the_way', title: 'En Camino', icon: 'delivery_dining', description: 'Tu pedido está en ruta para ser entregado.' },
-  { name: 'delivered', title: 'Entregado', icon: 'done_all', description: '¡Tu pedido ha sido entregado exitosamente! ¡Buen provecho!' }
-];
-
-// Propiedad computada para determinar el paso actual para el stepper
-const currentStep = computed(() => {
-  if (orderStatus.value) {
-    // Encuentra el índice del paso actual
-    const stepIndex = orderSteps.findIndex(step => step.name === orderStatus.value.currentStepName);
-    // Retorna el nombre del paso, si no se encuentra, retorna el primer paso
-    return stepIndex !== -1 ? orderSteps[stepIndex].name : orderSteps[0].name;
-  }
-  return orderSteps[0].name; // Valor por defecto si no hay orden
+const mesaStatus = computed(() => {
+  const consumo = mesaConsumo.value.length > 0 ? mesaConsumo.value : [
+    { nombre: 'Pizza Pepperoni', cantidad: 2, precio: 15.99 },
+    { nombre: 'Refresco Grande', cantidad: 4, precio: 2.50 },
+    { nombre: 'Brownie de Chocolate', cantidad: 2, precio: 4.00 }
+  ];
+  const total = consumo.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+  return {
+    numero: 12,
+    comensales: 4,
+    horaLlegada: '13:15',
+    estado: 'Atendida',
+    consumo,
+    total
+  };
 });
 
-const fetchOrderStatus = () => {
-  if (!orderIdInput.value.trim()) {
-    $q.notify({
-      message: 'Por favor, ingresa un ID de orden.',
-      color: 'warning',
-      icon: 'info'
-    });
-    return;
-  }
+const columns = [
+  { name: 'nombre', label: 'Platillo', field: 'nombre', align: 'left' },
+  { name: 'cantidad', label: 'Cantidad', field: 'cantidad', align: 'center' },
+  { name: 'precio', label: 'Precio', field: row => `$${Number(row.precio).toFixed(2)}`, align: 'right' }
+];
 
-  loading.value = true;
-  orderStatus.value = null; // Limpiar estado anterior
-  orderIdSearched.value = true; // Indicar que se ha intentado buscar
-
-  // Simular una llamada a API con un retardo
-  setTimeout(() => {
-    const foundOrder = sampleOrders.find(order => order.id.toLowerCase() === orderIdInput.value.trim().toLowerCase());
-    orderStatus.value = foundOrder || null;
-    loading.value = false;
-
-    if (!foundOrder) {
-      $q.notify({
-        message: `La orden con ID "${orderIdInput.value}" no fue encontrada.`,
-        color: 'negative',
-        icon: 'error_outline'
-      });
-    }
-  }, 1500); // Simula un retardo de 1.5 segundos
-};
+function limpiarOrden() {
+  mesaConsumo.value = [];
+  $q.notify({
+    type: 'positive',
+    message: '¡Cuenta solicitada! La orden ha sido enviada y tu mesa se ha limpiado.'
+  });
+}
 </script>
 
 <style lang="scss" scoped>
 .order-status-page {
   min-height: calc(100vh - 50px);
-  /* Ajusta si tienes un header/footer */
   display: flex;
-  align-items: flex-start;
-  /* Alinea la tarjeta al inicio verticalmente */
+  align-items: center;
+  justify-content: center;
   padding-top: 50px;
-  /* Espacio superior */
+  background: #f5f5f5;
 
   .q-card {
     width: 100%;
-    max-width: 700px;
-    /* Limita el ancho de la tarjeta */
-    border-radius: 8px;
+    max-width: 900px;
+    border-radius: 16px;
+    font-size: 1.2em;
+    margin: 0 auto;
+  }
+
+  .q-table {
+    font-size: 1.1em;
+  }
+
+  .btn-accion {
+    min-width: 120px;
+    max-width: 100%;
+    height: 40px;
+    font-size: 1em;
+    border-radius: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-accion:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px) scale(1.03);
+    filter: brightness(1.08);
+  }
+
+  @media (max-width: 600px) {
+    .btn-accion {
+      min-width: 100%;
+      height: 36px;
+      font-size: 0.95em;
+    }
   }
 }
 </style>
